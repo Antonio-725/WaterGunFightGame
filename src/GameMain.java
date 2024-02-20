@@ -1,4 +1,11 @@
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Random;
+/**
+ * Constructs a new GameMain object with the specified number of opponents.
+
+ */
 
 public class GameMain {
     private Board board;
@@ -35,53 +42,86 @@ public class GameMain {
         }
     }
 
-    public void play() {
-        boolean cheatMode = false;
-
-        if (System.getProperty("cheat") != null && System.getProperty("cheat").equals("true")) {
-            cheatMode = true;
-            board.display(cheatMode, playerScore, opponentScore);
+    public void play(boolean cheatMode) {
+        // Display cheat board if cheatMode is true
+        if (cheatMode) {
+            board.display(true, playerScore, opponentScore);
         }
 
+        // Continue playing until the game is over
         while (!board.isGameOver(opponentScore)) {
             // Player's turn
             Cell playerShot = player.shoot();
             if (playerShot == null) {
-                board.display(true, playerScore, opponentScore);
                 continue;
             }
 
-            boolean playerHit = false;
-            for (Fort opponent : opponents) {
-                if (opponent.isHit(playerShot)) {
-                    opponent.hit(playerShot);
-                    System.out.println("Hit opponent fort " + opponent.getId() + "!");
-                    playerHit = true;
-                    break;
-                }
-            }
+            boolean playerHit = checkPlayerHit(playerShot);
+            displayPlayerHitResult(playerHit, playerScore, opponentScore);
 
-            if (!playerHit) {
-                System.out.println("Missed! No opponent fort hit.");
-            }
+            // Display the board after player's turn
+            board.display(false, playerScore, opponentScore);
 
             // Opponents' turn
-            for (Fort opponent : opponents) {
-                if (!opponent.isDestroyed()) {
-                    int points = calculatePoints(opponent);
-                    opponentScore += points;
-                    System.out.println("Opponent fort " + opponent.getId() + " scored " + points + " points.");
-                }
-            }
+            playOpponentsTurn();
 
-            board.display(cheatMode, playerScore, opponentScore);
+            // Display the board after opponents' turn
+            board.display(false, playerScore, opponentScore);
         }
+
+        // Display final scores and game result
+        displayGameResult();
+    }
+
+    private boolean checkPlayerHit(Cell playerShot) {
+        for (Fort opponent : opponents) {
+            if (opponent.isHit(playerShot)) {
+                opponent.hit(playerShot);
+                playerScore += calculatePoints(opponent);
+                System.out.println("Hit opponent fort " + opponent.getId() + "!");
+                return true;
+            }
+        }
+        System.out.println("Missed! No opponent fort hit.");
+        return false;
+    }
+
+    private void displayPlayerHitResult(boolean playerHit, int playerScore, int opponentScore) {
+        if (playerHit) {
+            System.out.println("Player score: " + playerScore + "/2500");
+            System.out.println("Opponent score: " + opponentScore + "/2500");
+        }
+    }
+
+    private void playOpponentsTurn() {
+        for (Fort opponent : opponents) {
+            if (!opponent.isDestroyed()) {
+                if (opponentMissesToHit()) {
+                    System.out.println("Opponent fort " + opponent.getId() + " missed the target.");
+                    continue;
+                }
+
+                int points = calculatePoints(opponent);
+                opponentScore += points;
+                System.out.println("Opponent fort " + opponent.getId() + " scored " + points + " points.");
+            }
+        }
+    }
+
+    private void displayGameResult() {
+        System.out.println("Player score: " + playerScore + "/2500");
+        System.out.println("Opponent score: " + opponentScore + "/2500");
 
         if (board.allFortsDestroyed()) {
             System.out.println("Congratulations! You have destroyed all opponent forts. You win!");
         } else {
             System.out.println("Game over! The opponent team has scored 2500 points. You lose!");
         }
+    }
+
+    private boolean opponentMissesToHit() {
+        Random random = new Random();
+        return random.nextInt(100) < 20; // 20% chance of missing the target
     }
 
     private int calculatePoints(Fort opponent) {
@@ -104,12 +144,10 @@ public class GameMain {
 
     public static void main(String[] args) {
         int numOpponents = 5;
-        if (args.length > 0) {
-            numOpponents = Integer.parseInt(args[0]);
-        }
+        boolean cheatMode = Arrays.asList(args).contains("--cheat");
 
         GameMain game = new GameMain(numOpponents);
-        game.play();
+        game.play(cheatMode);
     }
 
 }

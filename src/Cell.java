@@ -2,11 +2,15 @@ public class Cell {
     private int x;
     private int y;
     private boolean hit;
+    private boolean fort;
+    private char fortId;
 
     public Cell(int x, int y) {
         this.x = x;
         this.y = y;
         this.hit = false;
+        this.fort = false;
+        this.fortId = ' ';
     }
 
     public int getX() {
@@ -25,9 +29,19 @@ public class Cell {
         this.hit = hit;
     }
 
-    @Override
-    public String toString() {
-        return "(" + x + "," + y + ")";
+    public boolean isFort() {
+        return fort;
     }
 
+    public void setFort(boolean fort) {
+        this.fort = fort;
+    }
+
+    public char getFortId() {
+        return fortId;
+    }
+
+    public void setFortId(char fortId) {
+        this.fortId = fortId;
+    }
 }
