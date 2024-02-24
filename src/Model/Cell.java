@@ -1,15 +1,19 @@
+package Model;
+
 public class Cell {
     private int x;
     private int y;
-    private boolean hit;
-    private boolean fort;
+    private boolean isHit;
+    private boolean isTargetHit;
+    private boolean isFort;
     private char fortId;
 
     public Cell(int x, int y) {
         this.x = x;
         this.y = y;
-        this.hit = false;
-        this.fort = false;
+        this.isHit = false;
+        this.isTargetHit = false;
+        this.isFort = false;
         this.fortId = ' ';
     }
 
@@ -22,19 +26,27 @@ public class Cell {
     }
 
     public boolean isHit() {
-        return hit;
+        return isHit;
     }
 
     public void setHit(boolean hit) {
-        this.hit = hit;
+        isHit = hit;
+    }
+
+    public boolean isTargetHit() {
+        return isTargetHit;
+    }
+
+    public void setTargetHit(boolean targetHit) {
+        isTargetHit = targetHit;
     }
 
     public boolean isFort() {
-        return fort;
+        return isFort;
     }
 
     public void setFort(boolean fort) {
-        this.fort = fort;
+        isFort = fort;
     }
 
     public char getFortId() {
@@ -44,4 +56,23 @@ public class Cell {
     public void setFortId(char fortId) {
         this.fortId = fortId;
     }
+
+    public boolean isFortHit() {
+        return isHit && isFort;
+    }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
